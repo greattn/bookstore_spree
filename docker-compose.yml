@@ -1,0 +1,38 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7.33
+    platform: linux/x86_64
+    privileged: true
+    ports:
+      - "3307:3306"
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --disable-partition-engine-check
+    networks:
+      - internal
+  web:
+    image: greattn/bookstore_spree:3.0
+    env_file:
+      - .env
+    volumes:
+      - .:/bookstore
+      - bundle-data:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - internal
+    tty: true
+    stdin_open: true
+volumes:
+  mysql-data:
+  bundle-data:
+networks:
+  internal:
+    driver: bridge
